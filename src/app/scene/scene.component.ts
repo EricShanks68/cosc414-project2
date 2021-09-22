@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 
 @Component({
   selector: 'app-scene',
@@ -17,7 +17,9 @@ export class SceneComponent implements AfterViewInit {
     return this._renderingContext as WebGLRenderingContext;
   }
 
-  constructor() { }
+  constructor() {
+    //empty
+  }
 
   ngAfterViewInit(): void {
     if (!this.canvas) {
