@@ -21,7 +21,7 @@ export class SceneComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!this.canvas) {
-      console.log('canvas not supplied! cannot bind WebGL context!');
+      console.log('Canvas not supplied! Cannot bind WebGL context!');
       return;
     }
 
