@@ -1,4 +1,8 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {Vector2} from "../../models/vector2";
+import {Color} from "../../models/color";
+import {CircleDrawerService} from "../services/CircleDrawer/circle-drawer.service";
+import {Circle} from "../../models/circle";
 
 @Component({
   selector: 'app-scene',
@@ -7,17 +11,18 @@ import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 })
 export class SceneComponent implements AfterViewInit {
 
-  canvasDimensions = {x: 720, y: 480};
-  canvasClearColor = {r: 0, g: 0, b: 0, a: 1};
+  canvasSize = new Vector2(720, 480);
+  canvasColor = Color.Black;
+
+  circle = new Circle(
+    360, 100,
+    new Vector2(360, 240),
+    Color.White
+  );
 
   @ViewChild('sceneCanvas') private canvas: ElementRef<HTMLCanvasElement> | undefined;
-  private _renderingContext: CanvasRenderingContext2D | ImageBitmapRenderingContext | WebGLRenderingContext | WebGL2RenderingContext | null | undefined;
 
-  private get gl(): WebGLRenderingContext {
-    return this._renderingContext as WebGLRenderingContext;
-  }
-
-  constructor() {
+  constructor(public circleDrawer: CircleDrawerService) {
     //empty
   }
 
@@ -27,27 +32,19 @@ export class SceneComponent implements AfterViewInit {
       return;
     }
 
-    //Initialize WebGL context
-    this._renderingContext = this.canvas.nativeElement.getContext('webgl');
-    if(!this.gl) {
-      console.log("Unable to initialize WebGL. Your browser may not support it.")
+    //Initialize WebGL Service
+    if(!this.circleDrawer.initializeRenderingContext(this.canvas.nativeElement, this.canvasSize, this.canvasColor)){
+      console.log("Failed to initialize rendering context.");
       return;
     }
 
-    //Set Canvas Dimensions
-    this.gl.canvas.width = this.canvas.nativeElement.clientWidth;
-    this.gl.canvas.height = this.canvas.nativeElement.clientHeight;
+    //Draw Circle
+    this.circleDrawer.drawCircle(this.circle);
+  }
 
-    //Initialize Canvas
-    this.gl.clearColor(
-      this.canvasClearColor.r,
-      this.canvasClearColor.g,
-      this.canvasClearColor.b,
-      this.canvasClearColor.a
-    );
-
-    // Clear the colour as well as the depth buffer.
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  updateCanvas(): void {
+    this.circleDrawer.clearCanvas();
+    this.circleDrawer.drawCircle(this.circle);
   }
 
 }
