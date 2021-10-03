@@ -1,1 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+//Remove default margins from all HTML attributes
+* {
+  margin: 0;
+}
+
+//Sets 1rem = 10px
+html {
+  font-size: 62.5%;
+}

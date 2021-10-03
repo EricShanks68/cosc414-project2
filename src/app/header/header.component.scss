@@ -1,0 +1,21 @@
+.header {
+
+  display: flex;
+  justify-content: space-between;
+
+  &__title {
+    padding-left: 6rem;
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: black 1px 1px;
+  }
+
+  &__icon {
+    background-color: white;
+    margin-right: 6rem;
+  }
+}
+
+.mat-toolbar-row, .mat-toolbar-single-row {
+  padding: 0;
+}

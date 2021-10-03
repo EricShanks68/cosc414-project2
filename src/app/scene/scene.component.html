@@ -1,10 +1,14 @@
 <div class="scene">
-  <h2>COSC 414 Project 1</h2>
-  <div class="scene-canvas">
-    <canvas #sceneCanvas width="{{canvasSize.x}}" height="{{canvasSize.y}}">
-      Your browser doesn't appear to support the
-      <code>&lt;canvas&gt;</code> element.
-    </canvas>
+  <div class="scene__left">
+    <div class="scene__canvas-container">
+      <canvas #sceneCanvas class="scene__canvas" width="{{canvasSize.x}}" height="{{canvasSize.y}}">
+        Your browser doesn't appear to support the
+        <code>&lt;canvas&gt;</code> element.
+      </canvas>
+    </div>
+    <app-score></app-score>
   </div>
-  <p>Score: 0</p>
+  <div class="scene__right">
+    <app-info></app-info>
+  </div>
 </div>

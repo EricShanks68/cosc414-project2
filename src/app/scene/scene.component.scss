@@ -1,2 +1,22 @@
+.scene {
+  padding: 2rem 6rem;
+  display: flex;
+  flex-direction: row;
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__right {
+    flex-grow: 2;
+  }
 
 
+  &__canvas {
+    border: gray solid 2px;
+    border-radius: 4px;
+  }
+
+
+}
