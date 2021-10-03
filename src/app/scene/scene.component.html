@@ -6,7 +6,19 @@
         <code>&lt;canvas&gt;</code> element.
       </canvas>
     </div>
-    <app-score></app-score>
+    <div class="scene__bottom">
+      <div class="scene__score">
+        <p>Score: {{score}}</p>
+        <p *ngIf="!running">{{gameOverText}}</p>
+      </div>
+      <button *ngIf="!running"
+              (click)="startGame()"
+              mat-button mat-raised-button color="primary"
+              style="height: fit-content"
+      >
+        Play again
+      </button>
+    </div>
   </div>
   <div class="scene__right">
     <app-info></app-info>

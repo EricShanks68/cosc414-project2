@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {WebGLService} from "../WebGL/web-gl.service";
 import {Circle} from "../../../models/circle";
-import {toCanvasCoordinate} from "../../../functions/coordinate";
+import {toCanvasCoordinate} from "../../../functions/coordinateFunc";
 
 @Injectable({
   providedIn: 'root'
