@@ -9,6 +9,7 @@ import {getCursorPosition} from "../../functions/inputFunc";
 import {ExplosionParticle} from "../../models/explosionParticle";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
+//import { Console } from 'console';
 
 @Component({
   selector: 'app-scene',
@@ -74,7 +75,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   public gameLoop(): void {
-
+    console.log("Gameloop called");
     this.tick();
     this.render();
 
@@ -87,6 +88,8 @@ export class SceneComponent implements AfterViewInit {
 
   private tick(): void {
     //Spawn bacteria
+
+    console.log("tick() called");
     this.spawnBacteria();
 
     const removeEntities: Entity[] = [];
@@ -106,8 +109,11 @@ export class SceneComponent implements AfterViewInit {
         }
       }
       
+      
       //Explosion specific logic
-      else if(e.type == EntityType.ExplosionParticle){
+      
+       if(e.type == EntityType.ExplosionParticle){
+        console.log("HERRRREEEEEEEE????");
         const ep = <ExplosionParticle>e;
         ep.update();
       }
@@ -152,6 +158,8 @@ export class SceneComponent implements AfterViewInit {
   }
 
   public startGame(): void{
+
+    console.log("StartGame called");
     //Clear entities
     this.entities = [];
     this.gameover = false;
@@ -184,11 +192,17 @@ export class SceneComponent implements AfterViewInit {
 
   private spawnBacteria(): void{
 
-    //Don't spawn bacteria if the game has ended
-    if(!this.gameover) return;
+    //is being called, but not actually spawning any bacteria
 
+    console.log("spawnBacteria called");
+
+    //Don't spawn bacteria if the game has ended
+    console.log(this.gameover);
+    if(this.gameover) return;
+    console.log("spawn boi??????");
     const chance = Math.random();
     if (chance >= this.spawnChance) return;
+    console.log("YESSSSIRRRR");
 
     //Increase spawn chance on successful spawn
     this.spawnChance += this.gameSettings.spawnChanceGrowth;
@@ -214,6 +228,8 @@ export class SceneComponent implements AfterViewInit {
 
     //Add it to the entity array
     this.entities.push(B);
+    console.log(B);
+    console.log(Bacteria);
   }
 
   private createExplosion(particles: number, circle: Circle): void {
@@ -257,7 +273,7 @@ export class SceneComponent implements AfterViewInit {
       if (entity.type == EntityType.Bacteria) {
         const b = <Bacteria>entity;
         if (isPointInCircle(pos, b)) {
-          this.createExplosion(250, b);
+          this.createExplosion(25, b);
           b.die();
           this.score++;
           return;
