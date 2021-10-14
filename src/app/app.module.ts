@@ -13,6 +13,8 @@ import { FooterComponent } from './footer/footer.component';
 import { InfoComponent } from './info/info.component';
 import {MatTabsModule} from "@angular/material/tabs";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MatSliderModule} from "@angular/material/slider";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -20,18 +22,20 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
     SceneComponent,
     HeaderComponent,
     FooterComponent,
-    InfoComponent
+    InfoComponent,
   ],
-    imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
-        AppRoutingModule,
-        HttpClientModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatButtonModule,
-        MatTabsModule
-    ],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    HttpClientModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTabsModule,
+    MatSliderModule,
+    FormsModule
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })

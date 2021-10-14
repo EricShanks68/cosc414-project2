@@ -1,4 +1,4 @@
-name: CI
+name: Deploy to GitPages
 
 # Controls when the workflow will run
 on:

@@ -3,9 +3,12 @@ import {Vector2} from "../../models/vector2";
 import {Color} from "../../models/color";
 import {CircleDrawerService} from "../services/CircleDrawer/circle-drawer.service";
 import {Circle} from "../../models/circle";
-import {getCircumferencePoint, isPointInCircle} from "../../functions/circleFunc";
+import {getCircumferencePoint, isPointInCircle, norm} from "../../functions/circleFunc";
 import {Bacteria} from "../../models/bacteria";
 import {getCursorPosition} from "../../functions/inputFunc";
+import {ExplosionParticle} from "../../models/explosionParticle";
+import {GameSettings} from "../../models/gameSettings";
+import {Entity, EntityType} from "../../models/entity";
 
 @Component({
   selector: 'app-scene',
@@ -15,7 +18,14 @@ import {getCursorPosition} from "../../functions/inputFunc";
 export class SceneComponent implements AfterViewInit {
 
   running: boolean;
+  gameover: boolean;
+
+  gameSettings: GameSettings;
+
   score: number;
+  lives: number;
+  spawnChance: number;
+
   gameOverText: string;
 
   canvasSize = new Vector2(720, 480);
@@ -27,14 +37,22 @@ export class SceneComponent implements AfterViewInit {
     Color.White
   );
 
-  bacteria: Bacteria[];
+  entities: Entity[];
+
 
   @ViewChild('sceneCanvas') private canvas: ElementRef<HTMLCanvasElement> | undefined;
 
   constructor(private circleDrawer: CircleDrawerService) {
-    this.running = true;
+    this.running = false;
+    this.gameover = false;
+
+    this.gameSettings = new GameSettings();
+
     this.score = 0;
-    this.bacteria = [];
+    this.lives = 0;
+    this.spawnChance = this.gameSettings.startSpawnChance;
+
+    this.entities = [];
     this.gameOverText = "";
   }
 
@@ -52,45 +70,13 @@ export class SceneComponent implements AfterViewInit {
 
     this.canvas.nativeElement.addEventListener("mousedown", (e) => this.mouseClick(e));
 
-    this.startGame();
-
     console.log("Game over.");
   }
 
-  private gameLoop(): void {
-    //Clear scene
-    this.circleDrawer.clearCanvas();
+  public gameLoop(): void {
 
-    //Draw Petri Dish
-    this.circleDrawer.drawCircle(this.circle);
-
-    const remove: Bacteria[] = [];
-
-    //Update Bacteria
-    for(const b of this.bacteria){
-      b.update();
-      if (b.triggerGameover) {
-        this.gameOver()
-      } else if(!b.alive){
-        remove.push(b);
-      }
-    }
-
-    //Delete killed bacteria
-    for(const b of remove){
-      const index = this.bacteria.indexOf(b);
-      this.bacteria.splice(index, 1);
-    }
-
-    //Check win condition
-    if(this.bacteria.length == 0){
-      this.win();
-    }
-
-    //Draw Bacteria
-    for(const b of this.bacteria){
-      this.circleDrawer.drawCircle(b);
-    }
+    this.tick();
+    this.render();
 
     //Continue game loop
     if(this.running) {
@@ -99,58 +85,191 @@ export class SceneComponent implements AfterViewInit {
 
   }
 
+  private tick(): void {
+    //Spawn bacteria
+    this.spawnBacteria();
+
+    const removeEntities: Entity[] = [];
+
+    //Update Entities
+    for (const e of this.entities) {
+
+      //Bacteria specific logic
+      if(!this.gameover){
+        if (e.type == EntityType.Bacteria) {
+          const b = <Bacteria>e;
+          b.update();
+          if (b.triggerGameover ) {
+            this.lives--;
+            removeEntities.push(b);
+          }
+        }
+      }
+      
+      //Explosion specific logic
+      else if(e.type == EntityType.ExplosionParticle){
+        const ep = <ExplosionParticle>e;
+        ep.update();
+      }
+
+      if (!e.alive) {
+        removeEntities.push(e);
+      }
+    }
+
+    //Delete killed entities
+    for (const e of removeEntities) {
+      const index = this.entities.indexOf(e);
+      this.entities.splice(index, 1);
+    }
+
+    //Check game over condition
+    this.gameOverCheck();
+
+    //Check win condition
+    this.winCheck();
+  }
+
+  private render(): void {
+    //Clear scene
+    this.circleDrawer.clearCanvas();
+
+    //Draw Petri Dish
+    this.circleDrawer.drawCircle(this.circle);
+
+    //Draw Entities
+    for(const e of this.entities){
+      switch (e.type) {
+        case EntityType.Bacteria:
+          this.circleDrawer.drawCircle(<Bacteria>e);
+          break;
+        case EntityType.ExplosionParticle:
+          this.circleDrawer.drawCircle(<ExplosionParticle>e);
+          break;
+        default: break;
+      }
+    }
+  }
+
   public startGame(): void{
-    this.spawnBacteria(5);
-    this.running = true;
+    //Clear entities
+    this.entities = [];
+    this.gameover = false;
+
+    //Reset game
     this.score = 0;
-    this.gameLoop();
+    this.lives = this.gameSettings.startLives;
+    this.spawnChance = this.gameSettings.startSpawnChance;
+
+    //Start the game loop if it isn't already running
+    if(!this.running){
+      this.running = true;
+      this.gameLoop();
+    }
   }
 
-  private gameOver(): void {
-    this.running = false;
-    this.gameOverText = "Game over! :(";
+  private gameOverCheck(): void {
+    if(this.lives <= 0) {
+      this.gameover = true;
+      this.gameOverText = "Game over! :(";
+    }
   }
 
-  private win(): void {
-    this.running = false;
-    this.gameOverText = "You win!! :D";
+  private winCheck(): void {
+    if(this.score >= this.gameSettings.winScore) {
+      this.gameover = true;
+      this.gameOverText = "You win!! :D";
+    }
   }
 
-  private spawnBacteria(count: number): void{
+  private spawnBacteria(): void{
 
-    //Reset bacteria array
-    this.bacteria = [];
+    //Don't spawn bacteria if the game has ended
+    if(!this.gameover) return;
 
-    for(let i = 0; i < count; i++){
-      const B = new Bacteria(
+    const chance = Math.random();
+    if (chance >= this.spawnChance) return;
+
+    //Increase spawn chance on successful spawn
+    this.spawnChance += this.gameSettings.spawnChanceGrowth;
+
+    //Only spawn bacteria if under the cap
+    const bacteria: Bacteria[] = [];
+    for(const e of this.entities){
+      if(e.type == EntityType.Bacteria)
+        bacteria.push(<Bacteria>e);
+    }
+
+    if(bacteria.length >= this.gameSettings.spawnCap) return;
+
+    //Create the Bacteria
+    const B = new Bacteria(
+      100,
+      5,
+      getCircumferencePoint(this.circle),
+      new Color(Math.random(), Math.random(), Math.random(), 1),
+      this.gameSettings.growthRate,
+      75
+    );
+
+    //Add it to the entity array
+    this.entities.push(B);
+  }
+
+  private createExplosion(particles: number, circle: Circle): void {
+    for (let i = 0; i < particles; i++) {
+      const direction = norm(new Vector2(-0.5 + Math.random(), -0.5 + Math.random()));
+      const location = new Vector2(circle.location.x, circle.location.y);
+      const radius = circle.radius/3;
+      const speed = circle.radius/3;
+      const color = new Color(
+        circle.color.r * (0.7 + Math.random() * 0.3),
+        circle.color.g * (0.7 + Math.random() * 0.3),
+        circle.color.b * (0.7 + Math.random() * 0.3),
+        1
+      )
+
+      const E = new ExplosionParticle(
         100,
-        5,
-        getCircumferencePoint(this.circle),
-        new Color(Math.random(), Math.random(), Math.random(), 1),
-        0.1,
-        50
+        radius,
+        location,
+        color,
+        direction,
+        speed,
       );
 
-      this.bacteria.push(B);
+      this.entities.push(E);
     }
 
   }
 
   private mouseClick(e: MouseEvent): void {
-    if(!this.canvas) return;
+    if(!this.canvas || this.gameover) return;
 
     const pos = getCursorPosition(this.canvas.nativeElement, e);
 
-    for(let i = 0; i<=this.bacteria.length-1; i++) {
-      const b = this.bacteria[this.bacteria.length-1-i];
-      if(isPointInCircle(pos, b)){
-        b.die();
-        this.score++;
-        return;
+    //Spray poison
+
+
+    //Delete clicked on Bacteria
+    for(let i = 0; i<=this.entities.length-1; i++) {
+      const entity = this.entities[this.entities.length - 1 - i];
+      if (entity.type == EntityType.Bacteria) {
+        const b = <Bacteria>entity;
+        if (isPointInCircle(pos, b)) {
+          this.createExplosion(250, b);
+          b.die();
+          this.score++;
+          return;
+        }
       }
     }
 
   }
 
+  updateGameSettings(settings: GameSettings): void {
+    if(settings)
+      this.gameSettings = settings;
+  }
 
 }
