@@ -276,14 +276,14 @@ export class SceneComponent implements AfterViewInit {
       if (entity.type == EntityType.Bacteria) {
         const b = <Bacteria>entity;
         if (isPointInCircle(pos, b)) {
-          this.createExplosion(100, b);
+          this.createExplosion(this.gameSettings.explosionSize, b);
           b.die();
           return;
         }
       }
     }
 
-    if(this.poisonCount < 2){
+    if(this.poisonCount < this.gameSettings.poisonCap){
       //Spray poison
       const p = new Poison(50, 5, new Vector2(pos.x, pos.y), Color.Green, 0.4, 120);
       this.entities.push(p);

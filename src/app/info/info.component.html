@@ -22,7 +22,7 @@
             step="5"
             thumbLabel
             [value]="gameSettings?.winScore"
-            (input)="updateSettings($event.value, null, null, null, null, null)"
+            (input)="updateSettings($event.value, null, null, null, null, null,null,null)"
           >
           </mat-slider>
         </div>
@@ -36,7 +36,7 @@
             tickInterval="1"
             thumbLabel
             [value]="gameSettings?.startLives"
-            (input)="updateSettings(null, $event.value, null, null, null, null)"
+            (input)="updateSettings(null, $event.value, null, null, null, null,null,null)"
           >
           </mat-slider>
         </div>
@@ -51,7 +51,7 @@
             tickInterval="1"
             thumbLabel
             [value]="gameSettings?.growthRate"
-            (input)="updateSettings(null, null, $event.value, null, null, null)"
+            (input)="updateSettings(null, null, $event.value, null, null, null,null,null)"
           >
           </mat-slider>
         </div>
@@ -66,7 +66,7 @@
             tickInterval="1"
             thumbLabel
             [value]="gameSettings?.startSpawnChance"
-            (input)="updateSettings(null, null, null, $event.value, null, null)"
+            (input)="updateSettings(null, null, null, $event.value, null, null,null,null)"
           >
           </mat-slider>
         </div>
@@ -81,7 +81,7 @@
             tickInterval="1"
             thumbLabel
             [value]="gameSettings?.spawnChanceGrowth"
-            (input)="updateSettings(null, null, null, null, $event.value, null)"
+            (input)="updateSettings(null, null, null, null, $event.value, null, null,null)"
           >
           </mat-slider>
         </div>
@@ -96,10 +96,41 @@
             tickInterval="1"
             thumbLabel
             [value]="gameSettings?.spawnCap"
-            (input)="updateSettings(null, null, null, null, null, $event.value)"
+            (input)="updateSettings(null, null, null, null, null, $event.value,null,null)"
           >
           </mat-slider>
         </div>
+        <div class="info__settings-slider">
+          <p class="info__settings-slider--title">Explosion Size: {{gameSettings?.explosionSize}}</p>
+          <mat-slider
+            class="info__settings-slider--slider"
+            color="accent"
+            min="10"
+            max="250"
+            step="1"
+            tickInterval="5"
+            thumbLabel
+            [value]="gameSettings?.explosionSize"
+            (input)="updateSettings(null, null, null, null, null, null ,$event.value,null)"
+          >
+          </mat-slider>
+        </div>
+        <div class="info__settings-slider">
+          <p class="info__settings-slider--title">Poison Spawn Cap: {{gameSettings?.poisonCap}}</p>
+          <mat-slider
+            class="info__settings-slider--slider"
+            color="accent"
+            min="1"
+            max="5"
+            step="1"
+            tickInterval="1"
+            thumbLabel
+            [value]="gameSettings?.poisonCap"
+            (input)="updateSettings(null, null, null, null, null, null,null,$event.value)"
+          >
+          </mat-slider>
+        </div>
+
       </div>
     </mat-tab>
   </mat-tab-group>

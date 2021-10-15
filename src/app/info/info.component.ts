@@ -12,14 +12,16 @@ export class InfoComponent {
   @Input() gameSettings: GameSettings | undefined | null;
   @Output() gameSettingsEmitter = new EventEmitter<GameSettings>();
 
-  public updateSettings(score: number | null, lives: number | null, growthRate: number | null, startSpawnChance: number | null, spawnChanceGrowth: number | null, spawnCap: number | null): void {
+  public updateSettings(score: number | null, lives: number | null, growthRate: number | null, startSpawnChance: number | null, spawnChanceGrowth: number | null, spawnCap: number | null, explosionSize: number | null, poisonCap: number | null): void {
     const tempSettings = new GameSettings(
       this.gameSettings?.winScore,
       this.gameSettings?.startLives,
       this.gameSettings?.growthRate,
       this.gameSettings?.startSpawnChance,
       this.gameSettings?.spawnChanceGrowth,
-      this.gameSettings?.spawnCap
+      this.gameSettings?.spawnCap,
+      this.gameSettings?.explosionSize,
+      this.gameSettings?.poisonCap
     )
 
     tempSettings.updateWinScore(score);
@@ -28,6 +30,8 @@ export class InfoComponent {
     tempSettings.updateSpawnChance(startSpawnChance);
     tempSettings.updateSpawnChanceGrowth(spawnChanceGrowth);
     tempSettings.updateSpawnCap(spawnCap);
+    tempSettings.updateExplosionSize(explosionSize);
+    tempSettings.updatePoisonCap(poisonCap);
 
     this.gameSettingsEmitter?.emit(tempSettings);
   }
