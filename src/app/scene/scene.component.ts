@@ -9,7 +9,7 @@ import {getCursorPosition} from "../../functions/inputFunc";
 import {ExplosionParticle} from "../../models/explosionParticle";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
-//import { Console } from 'console';
+import { Poison } from 'src/models/poison';
 
 @Component({
   selector: 'app-scene',
@@ -26,6 +26,7 @@ export class SceneComponent implements AfterViewInit {
   score: number;
   lives: number;
   spawnChance: number;
+  poisonCount: number;
 
   gameOverText: string;
 
@@ -52,6 +53,7 @@ export class SceneComponent implements AfterViewInit {
     this.score = 0;
     this.lives = 0;
     this.spawnChance = this.gameSettings.startSpawnChance;
+    this.poisonCount = 0;
 
     this.entities = [];
     this.gameOverText = "";
@@ -70,12 +72,9 @@ export class SceneComponent implements AfterViewInit {
     }
 
     this.canvas.nativeElement.addEventListener("mousedown", (e) => this.mouseClick(e));
-
-    console.log("Game over.");
   }
 
   public gameLoop(): void {
-    console.log("Gameloop called");
     this.tick();
     this.render();
 
@@ -87,9 +86,9 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private tick(): void {
+
     //Spawn bacteria
 
-    console.log("tick() called");
     this.spawnBacteria();
 
     const removeEntities: Entity[] = [];
@@ -102,23 +101,36 @@ export class SceneComponent implements AfterViewInit {
         if (e.type == EntityType.Bacteria) {
           const b = <Bacteria>e;
           b.update();
-          if (b.triggerGameover ) {
+          if (b.loseLife) {
             this.lives--;
             removeEntities.push(b);
           }
         }
       }
-      
-      
+
+
       //Explosion specific logic
-      
+
        if(e.type == EntityType.ExplosionParticle){
-        console.log("HERRRREEEEEEEE????");
         const ep = <ExplosionParticle>e;
         ep.update();
       }
 
+      //Poison specific logic
+      if(e.type == EntityType.Poison){
+        const p = <Poison>e;
+        p.update();
+        for(const e2 of this.entities){
+          if(e2.type == EntityType.Bacteria){
+            const b = <Bacteria>e2;
+            p.killBacteria(b);
+          }
+        }
+      }
+
       if (!e.alive) {
+        if(e.type == EntityType.Bacteria) this.score++;
+        else if(e.type == EntityType.Poison) this.poisonCount--;
         removeEntities.push(e);
       }
     }
@@ -152,6 +164,9 @@ export class SceneComponent implements AfterViewInit {
         case EntityType.ExplosionParticle:
           this.circleDrawer.drawCircle(<ExplosionParticle>e);
           break;
+        case EntityType.Poison:
+          this.circleDrawer.drawCircle(<Poison>e);
+          break;
         default: break;
       }
     }
@@ -159,7 +174,6 @@ export class SceneComponent implements AfterViewInit {
 
   public startGame(): void{
 
-    console.log("StartGame called");
     //Clear entities
     this.entities = [];
     this.gameover = false;
@@ -168,6 +182,7 @@ export class SceneComponent implements AfterViewInit {
     this.score = 0;
     this.lives = this.gameSettings.startLives;
     this.spawnChance = this.gameSettings.startSpawnChance;
+    this.poisonCount = 0;
 
     //Start the game loop if it isn't already running
     if(!this.running){
@@ -192,17 +207,10 @@ export class SceneComponent implements AfterViewInit {
 
   private spawnBacteria(): void{
 
-    //is being called, but not actually spawning any bacteria
-
-    console.log("spawnBacteria called");
-
     //Don't spawn bacteria if the game has ended
-    console.log(this.gameover);
     if(this.gameover) return;
-    console.log("spawn boi??????");
     const chance = Math.random();
     if (chance >= this.spawnChance) return;
-    console.log("YESSSSIRRRR");
 
     //Increase spawn chance on successful spawn
     this.spawnChance += this.gameSettings.spawnChanceGrowth;
@@ -221,15 +229,13 @@ export class SceneComponent implements AfterViewInit {
       100,
       5,
       getCircumferencePoint(this.circle),
-      new Color(Math.random(), Math.random(), Math.random(), 1),
+      new Color(Math.random(), 0, Math.random(), 1),
       this.gameSettings.growthRate,
       75
     );
 
     //Add it to the entity array
     this.entities.push(B);
-    console.log(B);
-    console.log(Bacteria);
   }
 
   private createExplosion(particles: number, circle: Circle): void {
@@ -237,7 +243,7 @@ export class SceneComponent implements AfterViewInit {
       const direction = norm(new Vector2(-0.5 + Math.random(), -0.5 + Math.random()));
       const location = new Vector2(circle.location.x, circle.location.y);
       const radius = circle.radius/3;
-      const speed = circle.radius/3;
+      const speed = circle.radius/5;
       const color = new Color(
         circle.color.r * (0.7 + Math.random() * 0.3),
         circle.color.g * (0.7 + Math.random() * 0.3),
@@ -264,21 +270,24 @@ export class SceneComponent implements AfterViewInit {
 
     const pos = getCursorPosition(this.canvas.nativeElement, e);
 
-    //Spray poison
-
-
     //Delete clicked on Bacteria
     for(let i = 0; i<=this.entities.length-1; i++) {
       const entity = this.entities[this.entities.length - 1 - i];
       if (entity.type == EntityType.Bacteria) {
         const b = <Bacteria>entity;
         if (isPointInCircle(pos, b)) {
-          this.createExplosion(25, b);
+          this.createExplosion(100, b);
           b.die();
-          this.score++;
           return;
         }
       }
+    }
+
+    if(this.poisonCount < 2){
+      //Spray poison
+      const p = new Poison(50, 5, new Vector2(pos.x, pos.y), Color.Green, 0.4, 120);
+      this.entities.push(p);
+      this.poisonCount++;
     }
 
   }
