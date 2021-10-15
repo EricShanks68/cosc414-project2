@@ -12,7 +12,8 @@ It was deployed to GitPages using the [angular-cli-ghpages](https://www.npmjs.co
 
 1. Install the latest LTS version of Node here: https://nodejs.org/en/
 2. Install the Angular CLI using the Terminal using: `npm install -g @angular/cli`
-3. Using the Terminal navigate to the root directory of the project and run `ng serve`.
+3. Using the Terminal navigate to the root directory of the project and run `npm install` to install the project dependencies.
+4. Still in the root directory, run `ng serve` to launch the application.
 4. Navigate to `http://localhost:4200/` to view the site. 
 
 The app will automatically reload if you change any of the source files.
