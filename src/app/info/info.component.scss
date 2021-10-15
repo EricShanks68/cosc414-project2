@@ -2,8 +2,19 @@
   padding: 0 0 0 6rem;
   font-size: 1.8rem;
 
-  &__content {
+  &__content, &__settings {
     padding: 2rem 1rem;
+  }
+
+  &__settings-slider {
+
+    &--title {
+      font-size: 1.4rem;
+    }
+
+    &--slider {
+      width: 95%;
+    }
   }
 
 }
