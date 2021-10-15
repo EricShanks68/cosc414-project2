@@ -1,30 +1,28 @@
 # Cosc414Project1
 
+Created by Nicholas Brown, Amelia Colquhoun, and Eric Shanks. 
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.0.
 
-## Development server
+The project is available on [GitHub Pages](https://nicholas-c-brown.github.io/cosc414-project1/scene)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+It was deployed to GitPages using the [angular-cli-ghpages](https://www.npmjs.com/package/angular-cli-ghpages) package.
+
+## How to run
+
+1. Install the latest LTS version of Node here: https://nodejs.org/en/
+2. Install the Angular CLI using the Terminal using: `npm install -g @angular/cli`
+3. Using the Terminal navigate to the root directory of the project and run `ng serve`.
+4. Navigate to `http://localhost:4200/` to view the site. 
+
+The app will automatically reload if you change any of the source files.
 
 ## Switching Branches
 
-Switch branch. Make sure server is closed. Run `npm install` . 
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+1. Make sure the application isn't running.
+2. Switch to the desired branch. 
+3. Run `npm install`.
+4. Run the application.
 
 ## Further help
 
