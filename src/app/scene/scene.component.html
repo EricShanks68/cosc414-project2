@@ -7,28 +7,28 @@
       </canvas>
     </div>
     <div class="scene__bottom">
-      <div class="scene__lives">
+      <!-- <div class="scene__lives">
         <p>Lives: {{lives}}</p>
       </div>
       <div class="scene__score">
         <p>Score: {{score}}</p>
         <p *ngIf="gameover">{{gameOverText}}</p>
-      </div>
-      <button *ngIf="gameover"
+      </div> -->
+      <!-- <button *ngIf="gameover"
               (click)="startGame()"
               mat-button mat-raised-button color="primary"
               style="height: fit-content"
       >
         Play again
-      </button>
+      </button> -->
       <button *ngIf="!running"
               (click)="
-                startGame();
+                
                 gameLoop();
               "
               mat-button mat-raised-button color="primary"
               style="height: fit-content"
-      >
+      > <!--startGame(); removed from this button-->
         Start game
       </button>
     </div>
