@@ -1,4 +1,4 @@
-# Cosc414Project1
+# Cosc414Project2
 
 Created by Nicholas Brown, Amelia Colquhoun, and Eric Shanks. 
 
