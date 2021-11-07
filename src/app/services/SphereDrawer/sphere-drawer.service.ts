@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {WebGLService} from "../WebGL/web-gl.service";
+import * as matrix from 'gl-matrix';
 import {Sphere} from "../../../models/sphere";
 import {toCanvasCoordinate} from "../../../functions/coordinateFunc";
 
@@ -9,16 +10,21 @@ import {toCanvasCoordinate} from "../../../functions/coordinateFunc";
 export class SphereDrawerService extends WebGLService {
 
   private vertexSrc = [
-    'attribute vec4 position;',
-    'uniform mat4 RotMatrix',
+    'attribute vec3 position;',
+    'uniform mat4 uModelViewMatrix;',
+    'uniform mat4 uProjectionMatrix;',
+    'varying vec4 vColor;',
     'void main() {',
-    ' gl_Position = position * RotMatrix;',
+    ' gl_PointSize = 3.0;',
+    ' gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(position, 1.0);',
+    ' vColor = vec4(position.x, position.y, 0.5, 1);',
     '}'
   ].join('\n');
 
   private fragmentSrc = [
     'precision highp float;',
     'uniform vec4 color;',
+    'varying vec4 vColor;',
     'void main() {',
     ' gl_FragColor = color;',
     '}'
@@ -30,7 +36,7 @@ export class SphereDrawerService extends WebGLService {
 
   /**
    * Draws a circle to the WebGL Canvas
-   * @param sphere the circle to be drawn
+   * @param sphere the sphere to be drawn
    */
   public drawSphere(sphere: Sphere): void {
     //Ensure the WebGL components have been initialized
@@ -43,10 +49,40 @@ export class SphereDrawerService extends WebGLService {
     this.updateContext();
 
     //Insert the vertex positions into the buffer
-    const vert = this.calculateSphereVertices(sphere);
-    const ind = this.calculateSphereIndices(sphere);
-    
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
+    const vertices = this.calculateSphereVertices(sphere);
+    const indices = this.calculateSphereIndices(sphere);
+
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW);
+
+    const indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indices), this.gl.STATIC_DRAW);
+
+
+    const projectionMatrix = matrix.mat4.create();
+    matrix.mat4.perspective(
+      projectionMatrix,
+      45 * Math.PI / 180,
+      this.gl.canvas.width / this.gl.canvas.height,
+      0,
+      100
+    )
+
+    const projection = this.gl.getUniformLocation(this.program, 'uProjectionMatrix');
+    this.gl.uniformMatrix4fv(projection, false, projectionMatrix);
+
+    const modelViewMatrix = matrix.mat4.create();
+
+    matrix.mat4.translate(
+      modelViewMatrix,     // destination matrix
+      modelViewMatrix,     // matrix to translate
+      [toCanvasCoordinate(sphere.location.x, this.gl.canvas.width), toCanvasCoordinate(sphere.location.y, this.gl.canvas.height), sphere.location.z-5] // amount to translate
+    );
+
+    matrix.mat4.rotate(modelViewMatrix, modelViewMatrix, sphere.rotation, [0, 1, 0.2])
+
+    const modelView = this.gl.getUniformLocation(this.program, 'uModelViewMatrix');
+    this.gl.uniformMatrix4fv(modelView, false, modelViewMatrix);
 
     //Pass the circle color into the fragment shader color uniform
     const colorUniform = this.gl.getUniformLocation(this.program, 'color');
@@ -55,10 +91,10 @@ export class SphereDrawerService extends WebGLService {
     //Pass the circle vertices into the vertex shader position attribute
     const positionAttrib = this.gl.getAttribLocation(this.program, 'position');
     this.gl.enableVertexAttribArray(positionAttrib);
-    this.gl.vertexAttribPointer(positionAttrib, 2, this.gl.FLOAT, false, 0, 0);
+    this.gl.vertexAttribPointer(positionAttrib, 3, this.gl.FLOAT, false, 0, 0);
 
     //Draw the circle
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, positions.length/2);
+    this.gl.drawElements(this.gl.TRIANGLES, indices.length, this.gl.UNSIGNED_BYTE, 0);
   }
 
   /**
@@ -68,79 +104,49 @@ export class SphereDrawerService extends WebGLService {
    * @return number[] an array of calculated vertex positions
    */
   private calculateSphereVertices(sphere: Sphere): number[] {
-    const vert: number[] = [];
+    const vertices: number[] = [];
 
-    for(let i = 0; i<sphere.resolution+1; i++){
-      const angle = (i * Math.PI) / sphere.resolution;
-      const pointX = sphere.location.x + (sphere.radius * Math.cos(angle));
-      const pointY = sphere.location.y + (sphere.radius * Math.sin(angle));
+    for (let j = 0; j <= sphere.resolution; j++) {
+      const aj = j * Math.PI / sphere.resolution;
+      const sj = Math.sin(aj);
+      const cj = Math.cos(aj);
+      for (let i = 0; i <= sphere.resolution; i++) {
+        const ai = i * 2 * Math.PI / sphere.resolution;
+        const si = Math.sin(ai);
+        const ci = Math.cos(ai);
 
-      for(let j = 0; j < sphere.resolution; j++){
-        const angle2 = (i * 2 * Math.PI) / sphere.resolution;
-        const pointX2 = sphere.location.x + (sphere.radius * Math.cos(angle2));
-        const pointY2 = sphere.location.y + (sphere.radius * Math.sin(angle2));
-
-        vert.push(toCanvasCoordinate(pointX * pointX2, this.gl.canvas.width));
-        vert.push(toCanvasCoordinate(pointY, this.gl.canvas.height));
-        //do something with z axis?
-        vert.push(pointX * pointY2);
-        vert.push(0);
-      }
-      // for (j = 0; j <= SPHERE_DIV; j++) {
-      //   aj = j * Math.PI / SPHERE_DIV;
-      //   sj = Math.sin(aj);
-      //   cj = Math.cos(aj);
-      //   for (i = 0; i <= SPHERE_DIV; i++) {
-      //     ai = i * 2 * Math.PI / SPHERE_DIV;
-      //     si = Math.sin(ai);
-      //     ci = Math.cos(ai);
-
-      //     vertices.push(si * sj);  // X
-      //     vertices.push(cj);       // Y
-      //     vertices.push(ci * sj);  // Z
-      //   }
-    }
-
-    return vert;
-  }
-
-  private calculateSphereIndices(sphere: Sphere): number[] {
-    const ind: number[] = [];
-
-    for(let i = 0; i<sphere.resolution; i++){
-      for(let j = 0; j<sphere.resolution; j++){
-       const p1 = j * (sphere.resolution+1) + i;
-       const p2 = p1 + (sphere.resolution+1);
-
-       ind.push(p1);
-       ind.push(p2);
-       ind.push(p1 + 1);
-
-       ind.push(p1 + 1);
-       ind.push(p2);
-       ind.push(p2 + 1);
+        vertices.push(sphere.radius/100 * si * sj);  // X
+        vertices.push(sphere.radius/100 * cj);       // Y
+        vertices.push(sphere.radius/100 * ci * sj);  // Z
       }
     }
 
-
-    // // Indices
-    // for (j = 0; j < SPHERE_DIV; j++) {
-    //   for (i = 0; i < SPHERE_DIV; i++) {
-    //     p1 = j * (SPHERE_DIV+1) + i;
-    //     p2 = p1 + (SPHERE_DIV+1);
-
-    //     indices.push(p1);
-    //     indices.push(p2);
-    //     indices.push(p1 + 1);
-
-    //     indices.push(p1 + 1);
-    //     indices.push(p2);
-    //     indices.push(p2 + 1);
-    //   }
-    // }
-
-    return ind;
+    return vertices;
   }
+
+  private calculateSphereIndices(sphere: Sphere){
+    const indices: number[] = [];
+
+    for (let j = 0; j < sphere.resolution; j++) {
+      for (let i = 0; i < sphere.resolution; i++) {
+        const p1 = j * (sphere.resolution+1) + i;
+        const p2 = p1 + (sphere.resolution+1);
+
+        indices.push(p1);
+        indices.push(p2);
+        indices.push(p1 + 1);
+
+        indices.push(p1 + 1);
+        indices.push(p2);
+        indices.push(p2 + 1);
+      }
+    }
+
+    return indices;
+  }
+
+
+
 
 }
 
