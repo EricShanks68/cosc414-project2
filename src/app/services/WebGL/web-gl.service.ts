@@ -52,7 +52,12 @@ export abstract class WebGLService {
 
     this.setCanvasSize(this.canvasSize.x, this.canvasSize.y);
     this.setCanvasClearColor(this.canvasClearColor);
+    
     this.clearCanvas();
+
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.gl.depthFunc(this.gl.LEQUAL);
+    this.gl.depthRange(-100, 100);
 
     return true;
   }

@@ -4,8 +4,10 @@ import {Color} from "../../models/color";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity} from "../../models/entity";
 import {SphereDrawerService} from "../services/SphereDrawer/sphere-drawer.service";
+import {getCursorPosition} from "../../functions/inputFunc";
 import {Sphere} from "../../models/sphere";
-import {Vector3} from "../../models/vector3";
+import { Vector3 } from "../../models/vector3";
+import { normV2 } from 'src/functions/circleFunc';
 
 @Component({
   selector: 'app-scene',
@@ -18,8 +20,11 @@ export class SceneComponent implements AfterViewInit {
   canvasSize = new Vector2(720, 480);
   canvasColor = Color.Black;
 
-  sphere = new Sphere(15, 50,new Vector3(360,240, 3), Color.White, 0)
-  sphere2 = new Sphere(5, 10,new Vector3(190,240, 2.95), Color.Green, 0)
+  sphere = new Sphere(15, 150,new Vector3(0,0, 0), Color.White, new Vector2(0,0));
+  sphere2 = new Sphere(15, 75,new Vector3(-1.5,0, 0), Color.Green, new Vector2(0,0));
+
+  drag = false;
+  mouseStart = new Vector2(0,0);
 
 
 
@@ -40,18 +45,73 @@ export class SceneComponent implements AfterViewInit {
       return;
     }
 
-    this.animate();
+    window.addEventListener("mousedown", (e) => this.mouseDown(e), false);
+    window.addEventListener("mousemove", (e) => this.mouseMove(e), false);
+    window.addEventListener("mouseup", (e) => this.mouseUp(e), false);
 
+    this.animate();    
   }
 
   private animate(): void {
     this.sphereDrawer.clearCanvas();
     this.sphereDrawer.drawSphere(this.sphere);
     this.sphereDrawer.drawSphere(this.sphere2);
-    this.sphere.rotation+=0.01;
-    this.sphere2.rotation+=0.04;
     requestAnimationFrame(() => this.animate());
   }
+
+  private mouseDown(e: MouseEvent): void {     
+     
+    if(!this.canvas) return;
+
+    this.drag = true;
+    this.mouseStart = getCursorPosition(this.canvas.nativeElement, e);
+    
+      // //a
+      // if(e.keyCode == 65){
+      //   this.sphere.rotation.x += 0.1;
+      //   this.sphere2.rotation.x += 0.1;
+      // }
+      // //d
+      // if(e.keyCode == 68){
+      //   this.sphere.rotation.x -= 0.1;
+      //   this.sphere2.rotation.x -= 0.1;
+      // }
+      // //w
+      // if(e.keyCode == 87){
+      //   this.sphere.rotation.y -= 0.1;
+      //   this.sphere2.rotation.y -= 0.1;
+      // }
+      // //s
+      // if(e.keyCode == 83){
+      //   this.sphere.rotation.y += 0.1;
+      //   this.sphere2.rotation.y += 0.1;
+      // }
+    }
+
+  private mouseMove(e: MouseEvent): void {
+
+    if(!this.canvas || !this.drag) return;
+
+    const mouseEnd = getCursorPosition(this.canvas.nativeElement, e);
+
+    const dragged = new Vector2(this.mouseStart.x - mouseEnd.x, this.mouseStart.y - mouseEnd.y);
+    
+    this.sphere.rotation.x += dragged.x * 0.005;
+    this.sphere2.rotation.x += dragged.x * 0.005;
+
+    this.sphere.rotation.y += dragged.y * 0.005;
+    this.sphere2.rotation.y += dragged.y * 0.005;
+
+    this.mouseStart = mouseEnd;
+
+  }
+
+  private mouseUp(e: MouseEvent): void {
+    if(!this.canvas) return;
+
+    this.drag = false;
+  }
+
 
 
 }
