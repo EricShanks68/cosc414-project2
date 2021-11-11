@@ -64,8 +64,8 @@ export class SphereDrawerService extends WebGLService {
       projectionMatrix,
       45 * Math.PI / 180,
       this.gl.canvas.width / this.gl.canvas.height,
-      -5,
-      5
+      -10,
+      10
     );
 
     const projection = this.gl.getUniformLocation(this.program, 'uProjectionMatrix');
@@ -76,13 +76,13 @@ export class SphereDrawerService extends WebGLService {
     matrix.mat4.translate(
       modelViewMatrix,     // destination matrix
       modelViewMatrix,     // matrix to translate
-      [0, 0, -5] // amount to translate
+      [0, 0, -10] // amount to translate
     );
 
     matrix.mat4.rotate(modelViewMatrix, modelViewMatrix, sphere.rotation.x, [0, 1, 0])
-    matrix.mat4.rotate(modelViewMatrix, modelViewMatrix, sphere.rotation.y, [0, 0, 1])
-    
-      
+    matrix.mat4.rotate(modelViewMatrix, modelViewMatrix, sphere.rotation.y, [1, 0, 0])
+
+
     const modelView = this.gl.getUniformLocation(this.program, 'uModelViewMatrix');
     this.gl.uniformMatrix4fv(modelView, false, modelViewMatrix);
 
@@ -117,9 +117,9 @@ export class SphereDrawerService extends WebGLService {
         const si = Math.sin(ai);
         const ci = Math.cos(ai);
 
-        vertices.push(sphere.location.x + sphere.radius/100 * si * sj);  // X
-        vertices.push(sphere.location.y + sphere.radius/100 * cj);       // Y
-        vertices.push(sphere.location.z + sphere.radius/100 * ci * sj);  // Z
+        vertices.push(sphere.location.x + sphere.radius * si * sj);  // X
+        vertices.push(sphere.location.y + sphere.radius * cj);       // Y
+        vertices.push(sphere.location.z + sphere.radius * ci * sj);  // Z
       }
     }
 

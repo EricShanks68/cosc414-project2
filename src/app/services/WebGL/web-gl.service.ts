@@ -13,7 +13,7 @@ export abstract class WebGLService {
 
   private _renderingContext: CanvasRenderingContext2D | ImageBitmapRenderingContext | WebGLRenderingContext | WebGL2RenderingContext | null | undefined;
 
-  protected get gl(): WebGLRenderingContext {
+  get gl(): WebGLRenderingContext {
     return this._renderingContext as WebGLRenderingContext;
   }
 
@@ -52,7 +52,7 @@ export abstract class WebGLService {
 
     this.setCanvasSize(this.canvasSize.x, this.canvasSize.y);
     this.setCanvasClearColor(this.canvasClearColor);
-    
+
     this.clearCanvas();
 
     this.gl.enable(this.gl.DEPTH_TEST);
