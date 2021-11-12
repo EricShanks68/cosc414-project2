@@ -41,7 +41,7 @@ export abstract class WebGLService {
    * @param clearColor the color the canvas is reset to when cleared
    */
   public initializeRenderingContext(canvas: HTMLCanvasElement, canvasSize: Vector2, clearColor: Color): boolean {
-    this._renderingContext = canvas.getContext('webgl');
+    this._renderingContext = canvas.getContext('webgl', {preserveDrawingBuffer: true});
     if(!this.gl) {
       console.log("Unable to initialize WebGL. Your browser may not support it.");
       return false;

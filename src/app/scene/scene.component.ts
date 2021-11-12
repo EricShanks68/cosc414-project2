@@ -4,10 +4,9 @@ import {Color} from "../../models/color";
 import {SphereDrawerService} from "../services/SphereDrawer/sphere-drawer.service";
 import {getCursorPosition} from "../../functions/inputFunc";
 import {Sphere} from "../../models/sphere";
-import { Vector3 } from "../../models/vector3";
+import {Vector3} from "../../models/vector3";
 import {getCircumferencePoint} from "../../functions/sphereFunc";
 import {Bacteria3D} from "../../models/bacteria3d";
-import {toCanvasCoordinate, toScreenCoordinate} from "../../functions/coordinateFunc";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
 
@@ -18,33 +17,45 @@ import {Entity, EntityType} from "../../models/entity";
 })
 export class SceneComponent implements AfterViewInit {
 
+  running: boolean;
+  gameover: boolean;
+
+  gameSettings: GameSettings;
+
+  score: number;
+  lives: number;
+  spawnChance: number;
+  poisonCount: number;
+
+  gameOverText: string;
 
   canvasSize = new Vector2(720, 480);
   canvasColor = Color.Black;
 
-
   sphere = new Sphere(15, 1.5,new Vector3(0,0, 0), Color.White, Vector2.ZERO);
-  sphere2: Sphere;
-  sphere3: Sphere;
-  sphere4: Sphere;
 
   drag = false;
   mouseStart = new Vector2(0,0);
 
   entities: Entity[];
-  gameSettings: GameSettings;
-
 
 
   @ViewChild('sceneCanvas') private canvas: ElementRef<HTMLCanvasElement> | undefined;
 
   constructor(private sphereDrawer: SphereDrawerService) {
-    this.sphere2 = new Sphere(0, 0, Vector3.ZERO, Color.White, Vector2.ZERO);
-    this.sphere3 = new Sphere(0, 0, Vector3.ZERO, Color.White, Vector2.ZERO);
-    this.sphere4 = new Sphere(0, 0, Vector3.ZERO, Color.White, Vector2.ZERO);
+
+    this.running = false;
+    this.gameover = false;
+
+    this.gameSettings = new GameSettings();
+
+    this.score = 0;
+    this.lives = 0;
+    this.spawnChance = this.gameSettings.startSpawnChance;
+    this.poisonCount = 0;
 
     this.entities = [];
-    this.gameSettings = new GameSettings();
+    this.gameOverText = "";
 
   }
 
@@ -53,15 +64,6 @@ export class SceneComponent implements AfterViewInit {
       console.log('Canvas not supplied! Cannot bind WebGL context!');
       return;
     }
-
-    let randomPoint = getCircumferencePoint(this.sphere);
-    this.sphere2 = new Sphere(15, 0.5, randomPoint, Color.Red, Vector2.ZERO);
-
-    randomPoint = getCircumferencePoint(this.sphere);
-    this.sphere3 = new Sphere(15, 0.6, randomPoint, Color.Green, Vector2.ZERO);
-
-    randomPoint = getCircumferencePoint(this.sphere);
-    this.sphere4 = new Sphere(15, 0.4, randomPoint, Color.Blue, Vector2.ZERO);
 
     //Initialize WebGL Service
     if(!this.sphereDrawer.initializeRenderingContext(this.canvas.nativeElement, this.canvasSize, this.canvasColor)){
@@ -75,20 +77,140 @@ export class SceneComponent implements AfterViewInit {
     window.addEventListener("mousedown", (e) => this.mouseClick(e), false);
 
 
-    this.animate();
+    this.gameLoop();
   }
 
-  private animate(): void {
+  public gameLoop(): void {
+    this.tick();
+    this.render();
+
+    //Continue game loop
+    if(this.running) {
+      requestAnimationFrame(() => this.gameLoop());
+    }
+  }
+
+  private tick(): void {
+
+    //Spawn bacteria
+
+    this.spawnBacteria();
+
+    const removeEntities: Entity[] = [];
+
+    //Update Entities
+    for (const e of this.entities) {
+
+      //Bacteria specific logic
+      if(!this.gameover){
+        if (e.type == EntityType.Bacteria) {
+          const b = <Bacteria3D>e;
+          b.update();
+          if (b.loseLife) {
+            this.lives--;
+            removeEntities.push(b);
+          }
+        }
+      }
+
+
+      //Explosion specific logic
+
+      // if(e.type == EntityType.ExplosionParticle){
+      //   const ep = <ExplosionParticle>e;
+      //   ep.update();
+      // }
+      //
+      // //Poison specific logic
+      // if(e.type == EntityType.Poison){
+      //   const p = <Poison>e;
+      //   p.update();
+      //   for(const e2 of this.entities){
+      //     if(e2.type == EntityType.Bacteria){
+      //       const b = <Bacteria>e2;
+      //       p.killBacteria(b);
+      //     }
+      //   }
+      // }
+
+      if (!e.alive) {
+        if(e.type == EntityType.Bacteria) this.score++;
+        else if(e.type == EntityType.Poison) this.poisonCount--;
+        removeEntities.push(e);
+      }
+    }
+
+    //Delete killed entities
+    for (const e of removeEntities) {
+      const index = this.entities.indexOf(e);
+      this.entities.splice(index, 1);
+    }
+
+    //Check game over condition
+    this.gameOverCheck();
+
+    //Check win condition
+    this.winCheck();
+  }
+
+  private render(): void {
+    //Clear scene
     this.sphereDrawer.clearCanvas();
+
+    //Draw Petri Dish
     this.sphereDrawer.drawSphere(this.sphere);
-    this.sphereDrawer.drawSphere(this.sphere2);
-    this.sphereDrawer.drawSphere(this.sphere3);
-    this.sphereDrawer.drawSphere(this.sphere4);
-    requestAnimationFrame(() => this.animate());
+
+    //Draw Entities
+    for(const e of this.entities){
+      switch (e.type) {
+        case EntityType.Bacteria:
+          this.sphereDrawer.drawSphere(<Bacteria3D>e);
+          break;
+        // case EntityType.ExplosionParticle:
+        //   this.circleDrawer.drawCircle(<ExplosionParticle>e);
+        //   break;
+        // case EntityType.Poison:
+        //   this.circleDrawer.drawCircle(<Poison>e);
+        //   break;
+        default: break;
+      }
+    }
+  }
+
+  private gameOverCheck(): void {
+    if(this.lives <= 0) {
+      this.gameover = true;
+      this.gameOverText = "Game over! :(";
+    }
+  }
+
+  private winCheck(): void {
+    if(this.score >= this.gameSettings.winScore) {
+      this.gameover = true;
+      this.gameOverText = "You win!! :D";
+    }
+  }
+
+  public startGame(): void{
+
+    //Clear entities
+    this.entities = [];
+    this.gameover = false;
+
+    //Reset game
+    this.score = 0;
+    this.lives = this.gameSettings.startLives;
+    this.spawnChance = this.gameSettings.startSpawnChance;
+    this.poisonCount = 0;
+
+    //Start the game loop if it isn't already running
+    if(!this.running){
+      this.running = true;
+      this.gameLoop();
+    }
   }
 
   private mouseDown(e: MouseEvent): void {
-
     if(!this.canvas) return;
 
     this.drag = true;
@@ -102,17 +224,16 @@ export class SceneComponent implements AfterViewInit {
     const mouseEnd = getCursorPosition(this.canvas.nativeElement, e);
 
     const dragged = new Vector2(this.mouseStart.x - mouseEnd.x, this.mouseStart.y - mouseEnd.y);
-
     this.sphere.rotation.x += dragged.x * 0.005;
-    this.sphere2.rotation.x += dragged.x * 0.005;
-    this.sphere3.rotation.x += dragged.x * 0.005;
-    this.sphere4.rotation.x += dragged.x * 0.005;
-
     this.sphere.rotation.y += dragged.y * 0.005;
-    this.sphere2.rotation.y += dragged.y * 0.005;
-    this.sphere3.rotation.y += dragged.y * 0.005;
-    this.sphere4.rotation.y += dragged.y * 0.005;
 
+    for(const e of this.entities){
+      if(e.type == EntityType.Bacteria){
+        const b = <Bacteria3D>e;
+        b.rotation.x += dragged.x * 0.005;
+        b.rotation.y += dragged.y * 0.005;
+      }
+    }
 
     this.mouseStart = mouseEnd;
 
@@ -128,17 +249,14 @@ export class SceneComponent implements AfterViewInit {
     if(!this.canvas) return;
     const pixelValues = new Uint8Array(4);
     const pos = getCursorPosition(this.canvas.nativeElement, e);
-    this.sphereDrawer.gl.readPixels(e.x, e.y, 1,1, this.sphereDrawer.gl.RGBA , this.sphereDrawer.gl.UNSIGNED_BYTE, pixelValues);
-    this.sphereDrawer.gl.flush();
-    this.sphereDrawer.gl.finish();
-    console.log(pixelValues);
+    this.sphereDrawer.gl.readPixels(pos.x, pos.y, 1,1, this.sphereDrawer.gl.RGBA , this.sphereDrawer.gl.UNSIGNED_BYTE, pixelValues);
 
     //Delete clicked on Bacteria
     for(let i = 0; i<=this.entities.length-1; i++) {
       const entity = this.entities[this.entities.length - 1 - i];
       if (entity.type == EntityType.Bacteria) {
         const b = <Bacteria3D>entity;
-        if(b.color.r == pixelValues[0]) {
+        if(this.colorMatch(pixelValues, b.color)) {
           //this.createExplosion(this.gameSettings.explosionSize, b);
           b.die();
           return;
@@ -148,27 +266,47 @@ export class SceneComponent implements AfterViewInit {
 
   }
 
+  private colorMatch(pixels: Uint8Array, c: Color): boolean {
+    return pixels[0] == Math.round(c.r*255) && pixels[1] == Math.round(c.g*255) && pixels[2] == Math.round(c.b*255);
+  }
+
   private spawnBacteria(): void{
 
+    //Don't spawn bacteria if the game has ended
+    if(this.gameover) return;
+    const chance = Math.random();
+    if (chance >= this.spawnChance) return;
+
+    //Increase spawn chance on successful spawn
+    this.spawnChance += this.gameSettings.spawnChanceGrowth;
+
+    //Only spawn bacteria if under the cap
     const bacteria: Bacteria3D[] = [];
     for(const e of this.entities){
       if(e.type == EntityType.Bacteria)
         bacteria.push(<Bacteria3D>e);
     }
 
+    if(bacteria.length >= this.gameSettings.spawnCap) return;
+
     //Create the Bacteria
     const B = new Bacteria3D(
-      100,
-      5,
+      15,
+      0.1,
       getCircumferencePoint(this.sphere),
       new Color(Math.random(), 0, Math.random(), 1),
-      this.gameSettings.growthRate,
-      75,
-      Vector2.ZERO
+      this.sphere.rotation,
+      this.gameSettings.growthRate/100,
+      0.75,
     );
 
     //Add it to the entity array
     this.entities.push(B);
+  }
+
+  updateGameSettings(settings: GameSettings): void {
+    if(settings)
+      this.gameSettings = settings;
   }
 
 

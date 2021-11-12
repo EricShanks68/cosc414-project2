@@ -9,7 +9,7 @@ export class GameSettings {
   explosionSize: number;
   poisonCap: number;
 
-  constructor(winScore = 25, startLives= 2, growthRate = 0.15, startSpawnChance = 0.0025, spawnChanceGrowth = 0.001, spawnCap = 5, explosionSize = 25, poisonCap = 2) {
+  constructor(winScore = 25, startLives= 2, growthRate = 0.15, startSpawnChance = 0.005, spawnChanceGrowth = 0.001, spawnCap = 5, explosionSize = 25, poisonCap = 2) {
     this.winScore = winScore;
     this.startLives = startLives;
     this.growthRate = growthRate;

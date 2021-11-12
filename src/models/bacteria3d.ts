@@ -13,7 +13,7 @@ export class Bacteria3D extends Sphere implements Entity {
   maxRadius: number;
   loseLife: boolean;
 
-  constructor(resolution: number, radius: number, location: Vector3, color: Color, growthRate: number, maxRadius: number, rotation: Vector2) {
+  constructor(resolution: number, radius: number, location: Vector3, color: Color, rotation: Vector2, growthRate: number, maxRadius: number, ) {
     super(resolution, radius, location, color, rotation);
     this.growthRate = growthRate;
     this.maxRadius = maxRadius;

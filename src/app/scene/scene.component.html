@@ -1,6 +1,42 @@
 <div class="scene">
-  <canvas #sceneCanvas class="scene__canvas" width="{{canvasSize.x}}" height="{{canvasSize.y}}">
-    Your browser doesn't appear to support the
-    <code>&lt;canvas&gt;</code> element.
-  </canvas>
+  <div class="scene__left">
+    <div class="scene__canvas-container">
+      <canvas #sceneCanvas class="scene__canvas" width="{{canvasSize.x}}" height="{{canvasSize.y}}">
+        Your browser doesn't appear to support the
+        <code>&lt;canvas&gt;</code> element.
+      </canvas>
+    </div>
+    <div class="scene__bottom">
+      <div class="scene__lives">
+        <p>Lives: {{lives}}</p>
+      </div>
+      <div class="scene__score">
+        <p>Score: {{score}}</p>
+        <p *ngIf="gameover">{{gameOverText}}</p>
+      </div>
+      <button *ngIf="gameover"
+              (click)="startGame()"
+              mat-button mat-raised-button color="primary"
+              style="height: fit-content"
+      >
+        Play again
+      </button>
+      <button *ngIf="!running"
+              (click)="
+                startGame();
+                gameLoop();
+              "
+              mat-button mat-raised-button color="primary"
+              style="height: fit-content"
+      >
+        Start game
+      </button>
+    </div>
+  </div>
+  <div class="scene__right">
+    <app-info
+      [gameSettings]="gameSettings"
+      (gameSettingsEmitter)="updateGameSettings($event)"
+    ></app-info>
+  </div>
 </div>
