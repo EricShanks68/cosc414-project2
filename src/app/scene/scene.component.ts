@@ -10,6 +10,8 @@ import {Bacteria3D} from "../../models/bacteria3d";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
 import { Poison3D } from 'src/models/poison3d';
+import {toCanvasCoordinate} from 'src/functions/coordinateFunc';
+import {toScreenCoordinate} from 'src/functions/coordinateFunc';
 
 @Component({
   selector: 'app-scene',
@@ -267,7 +269,13 @@ export class SceneComponent implements AfterViewInit {
 
     if(this.poisonCount < this.gameSettings.poisonCap){
       //Spray poison
-      const p = new Poison3D(5, 0.5, new Vector3(pos.x, pos.y, 0), Color.Green, 0.4, 120, Vector2.ZERO);
+      const zPos = getCircumferencePoint(this.sphere);
+      console.log("x Pos " + zPos.x);
+      console.log("y Pos " + zPos.y);
+      console.log("mouse click x " + toCanvasCoordinate(pos.x,100));
+      console.log("mouse click y " + toCanvasCoordinate(pos.y, 100));
+      console.log("zPos " + zPos.z);
+      const p = new Poison3D(15, 0.5, new Vector3(zPos.x, zPos.y, 1), Color.Green, this.gameSettings.growthRate/100, 1, Vector2.ZERO);
       this.entities.push(p);
       this.poisonCount++;
     }
