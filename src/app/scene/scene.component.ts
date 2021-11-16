@@ -9,6 +9,7 @@ import {getCircumferencePoint} from "../../functions/sphereFunc";
 import {Bacteria3D} from "../../models/bacteria3d";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
+import { Poison3D } from 'src/models/poison3d';
 
 @Component({
   selector: 'app-scene',
@@ -120,18 +121,18 @@ export class SceneComponent implements AfterViewInit {
       //   const ep = <ExplosionParticle>e;
       //   ep.update();
       // }
-      //
-      // //Poison specific logic
-      // if(e.type == EntityType.Poison){
-      //   const p = <Poison>e;
-      //   p.update();
-      //   for(const e2 of this.entities){
-      //     if(e2.type == EntityType.Bacteria){
-      //       const b = <Bacteria>e2;
-      //       p.killBacteria(b);
-      //     }
-      //   }
-      // }
+
+      //Poison specific logic
+      if(e.type == EntityType.Poison){
+        const p = <Poison3D>e;
+        p.update();
+        for(const e2 of this.entities){
+          if(e2.type == EntityType.Bacteria){
+            const b = <Bacteria3D>e2;
+            p.killBacteria(b);
+          }
+        }
+      }
 
       if (!e.alive) {
         if(e.type == EntityType.Bacteria) this.score++;
@@ -169,9 +170,9 @@ export class SceneComponent implements AfterViewInit {
         // case EntityType.ExplosionParticle:
         //   this.circleDrawer.drawCircle(<ExplosionParticle>e);
         //   break;
-        // case EntityType.Poison:
-        //   this.circleDrawer.drawCircle(<Poison>e);
-        //   break;
+        case EntityType.Poison:
+          this.sphereDrawer.drawSphere(<Poison3D>e);
+          break;
         default: break;
       }
     }
@@ -263,6 +264,14 @@ export class SceneComponent implements AfterViewInit {
         }
       }
     }
+
+    if(this.poisonCount < this.gameSettings.poisonCap){
+      //Spray poison
+      const p = new Poison3D(5, 0.5, new Vector3(pos.x, pos.y, 0), Color.Green, 0.4, 120, Vector2.ZERO);
+      this.entities.push(p);
+      this.poisonCount++;
+    }
+
 
   }
 

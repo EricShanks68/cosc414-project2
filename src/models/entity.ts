@@ -11,5 +11,5 @@ export interface Entity {
 export enum EntityType {
   Bacteria,
   ExplosionParticle,
-  Poison
+  Poison,
 }
