@@ -309,11 +309,11 @@ export class SceneComponent implements AfterViewInit {
 
   private createExplosion(particles: number, sphere: Sphere): void {
     for (let i = 0; i < particles; i++) {
-      const direction = normV3(new Vector3(+0.05 + Math.random(), +0.05 + Math.random(), 0.08 + Math.random())); 
+      const direction = normV3(new Vector3(+1 + Math.random(), +1 + Math.random(), 0)); 
       const location = new Vector3(sphere.location.x, sphere.location.y, sphere.location.z);
       const radius = sphere.radius + 2;
       const speed = sphere.radius/400000000;
-      const rotation = new Vector2(1,1);
+      const rotation = new Vector2(0,1);
       const color = new Color(
         sphere.color.r * (0.7 + Math.random() * 0.3),
         sphere.color.g * (0.7 + Math.random() * 0.3),
