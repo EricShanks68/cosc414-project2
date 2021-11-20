@@ -23,11 +23,11 @@ export class ExplosionParticle extends Sphere implements Entity {
   }
 
   public update(): void{
-    this.location.x -= this.direction.x * (this.speed * (0.02 + Math.random()*0.1));
-    this.location.y -= this.direction.y * (this.speed * (0.02 + Math.random()*0.1));
-    //this.location.z += this.direction.z * (this.speed * (0.02 + Math.random()*0.1));
+    this.location.x -= this.direction.x * (this.speed * (0.04 + Math.random()*0.1));
+    this.location.y -= this.direction.y * (this.speed * (0.04 + Math.random()*0.1));
+    this.location.z += this.direction.z * (this.speed * (0.04 + Math.random()*0.1));
     if(this.radius > 0)
-      this.radius-=0.01 ;//+ Math.random();
+      this.radius-=0.001 ;//+ Math.random();
     else this.die();
 
   }

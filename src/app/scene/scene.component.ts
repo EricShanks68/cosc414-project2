@@ -270,7 +270,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private colorMatch(pixels: Uint8Array, c: Color): boolean {
-    return pixels[0] == Math.round(c.r*255) && pixels[1] == Math.round(c.g*255) && pixels[2] == Math.round(c.b*255);
+    return Math.abs(pixels[0] - Math.round(c.r*255) + pixels[1] - Math.round(c.g*255) + pixels[2] - Math.round(c.b*255)) < 2;
   }
 
   private spawnBacteria(): void{
@@ -309,11 +309,11 @@ export class SceneComponent implements AfterViewInit {
 
   private createExplosion(particles: number, sphere: Sphere): void {
     for (let i = 0; i < particles; i++) {
-      const direction = normV3(new Vector3(+1 + Math.random(), +1 + Math.random(), 0)); 
+      const direction = normV3(new Vector3(Math.random(), Math.random(), Math.random()));
       const location = new Vector3(sphere.location.x, sphere.location.y, sphere.location.z);
-      const radius = sphere.radius + 2;
-      const speed = sphere.radius/400000000;
-      const rotation = new Vector2(0,1);
+      const radius = sphere.radius/2;
+      const speed = sphere.radius;
+      const rotation = sphere.rotation;
       const color = new Color(
         sphere.color.r * (0.7 + Math.random() * 0.3),
         sphere.color.g * (0.7 + Math.random() * 0.3),
@@ -322,7 +322,7 @@ export class SceneComponent implements AfterViewInit {
       )
 
       const E = new ExplosionParticle(
-        20,
+        15,
         radius,
         location,
         color,
