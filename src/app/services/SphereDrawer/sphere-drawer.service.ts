@@ -97,6 +97,10 @@ export class SphereDrawerService extends WebGLService {
 
     //Draw the circle
     this.gl.drawElements(this.gl.TRIANGLES, indices.length, this.gl.UNSIGNED_BYTE, 0);
+
+    //create the inverse mapping to clip space 
+    const projxmodel = matrix.mat4.create();
+    const p1temp = matrix.mat4.multiply(projxmodel, projectionMatrix, modelViewMatrix);
   }
 
   /**

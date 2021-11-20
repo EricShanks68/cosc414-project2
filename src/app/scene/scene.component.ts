@@ -269,13 +269,23 @@ export class SceneComponent implements AfterViewInit {
 
     if(this.poisonCount < this.gameSettings.poisonCap){
       //Spray poison
+      let clipX = 0;
+      let clipY = 0;
+      const rect = this.canvas.nativeElement.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      console.log("x: " + x );
+      console.log("y: " + y );
+      clipX = x / rect.width  *  2 - 1;
+      clipY = y / rect.height * -2 + 1;
       const zPos = getCircumferencePoint(this.sphere);
+      console.log("e" + e);
       console.log("x Pos " + zPos.x);
       console.log("y Pos " + zPos.y);
-      console.log("mouse click x " + toCanvasCoordinate(pos.x,100));
-      console.log("mouse click y " + toCanvasCoordinate(pos.y, 100));
+      console.log("mouse click x " + toCanvasCoordinate(pos.x,100) *0.1);
+      console.log("mouse click y " + toCanvasCoordinate(pos.y, 100) * 0.1);
       console.log("zPos " + zPos.z);
-      const p = new Poison3D(15, 0.5, new Vector3(zPos.x, zPos.y, 1), Color.Green, this.gameSettings.growthRate/100, 1, Vector2.ZERO);
+      const p = new Poison3D(15, 0.5, new Vector3(toCanvasCoordinate(pos.x,100) *0.1, toCanvasCoordinate(pos.y, 100) * 0.1, 1), Color.Green, this.gameSettings.growthRate/100, 1, Vector2.ZERO);
       this.entities.push(p);
       this.poisonCount++;
     }
