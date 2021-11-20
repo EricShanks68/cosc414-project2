@@ -12,6 +12,7 @@ import {Entity, EntityType} from "../../models/entity";
 import { Poison3D } from 'src/models/poison3d';
 import {toCanvasCoordinate} from 'src/functions/coordinateFunc';
 import {toScreenCoordinate} from 'src/functions/coordinateFunc';
+import { m4 } from 'twgl.js';
 
 @Component({
   selector: 'app-scene',
@@ -278,6 +279,9 @@ export class SceneComponent implements AfterViewInit {
       console.log("y: " + y );
       clipX = x / rect.width  *  2 - 1;
       clipY = y / rect.height * -2 + 1;
+
+      const start = m4.transformPoint(, [clipX, clipY, -1]);
+
       const zPos = getCircumferencePoint(this.sphere);
       console.log("e" + e);
       console.log("x Pos " + zPos.x);

@@ -3,6 +3,7 @@ import {WebGLService} from "../WebGL/web-gl.service";
 import * as matrix from 'gl-matrix';
 import {Sphere} from "../../../models/sphere";
 import {toCanvasCoordinate} from "../../../functions/coordinateFunc";
+import { m4 } from 'twgl.js';
 
 @Injectable({
   providedIn: 'root'
@@ -100,9 +101,10 @@ export class SphereDrawerService extends WebGLService {
 
     //create the inverse mapping to clip space 
     const projxmodel = matrix.mat4.create();
+    let invertMat = m4.translation([1, 2, 3]); 
     const p1temp = matrix.mat4.multiply(projxmodel, projectionMatrix, modelViewMatrix);
+    invertMat = m4.inverse(p1temp);
   }
-
   /**
    * Calculates the vertices of the circle
    * @param circle
