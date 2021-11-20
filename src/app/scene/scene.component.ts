@@ -5,10 +5,11 @@ import {SphereDrawerService} from "../services/SphereDrawer/sphere-drawer.servic
 import {getCursorPosition} from "../../functions/inputFunc";
 import {Sphere} from "../../models/sphere";
 import {Vector3} from "../../models/vector3";
-import {getCircumferencePoint} from "../../functions/sphereFunc";
+import {getCircumferencePoint, normV3} from "../../functions/sphereFunc";
 import {Bacteria3D} from "../../models/bacteria3d";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
+import {ExplosionParticle} from "../../models/explosionParticle"
 
 @Component({
   selector: 'app-scene',
@@ -116,10 +117,10 @@ export class SceneComponent implements AfterViewInit {
 
       //Explosion specific logic
 
-      // if(e.type == EntityType.ExplosionParticle){
-      //   const ep = <ExplosionParticle>e;
-      //   ep.update();
-      // }
+      if(e.type == EntityType.ExplosionParticle){
+        const ep = <ExplosionParticle>e;
+        ep.update();
+      }
       //
       // //Poison specific logic
       // if(e.type == EntityType.Poison){
@@ -166,9 +167,9 @@ export class SceneComponent implements AfterViewInit {
         case EntityType.Bacteria:
           this.sphereDrawer.drawSphere(<Bacteria3D>e);
           break;
-        // case EntityType.ExplosionParticle:
-        //   this.circleDrawer.drawCircle(<ExplosionParticle>e);
-        //   break;
+        case EntityType.ExplosionParticle:
+          this.sphereDrawer.drawSphere(<ExplosionParticle>e);
+          break;
         // case EntityType.Poison:
         //   this.circleDrawer.drawCircle(<Poison>e);
         //   break;
@@ -257,7 +258,9 @@ export class SceneComponent implements AfterViewInit {
       if (entity.type == EntityType.Bacteria) {
         const b = <Bacteria3D>entity;
         if(this.colorMatch(pixelValues, b.color)) {
-          //this.createExplosion(this.gameSettings.explosionSize, b);
+          console.log("do get before explosion");
+          this.createExplosion(this.gameSettings.explosionSize, b);
+          console.log("explode???");
           b.die();
           return;
         }
@@ -267,7 +270,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private colorMatch(pixels: Uint8Array, c: Color): boolean {
-    return pixels[0] == Math.round(c.r*255) && pixels[1] == Math.round(c.g*255) && pixels[2] == Math.round(c.b*255);
+    return Math.abs(pixels[0] - Math.round(c.r*255) + pixels[1] - Math.round(c.g*255) + pixels[2] - Math.round(c.b*255)) < 2;
   }
 
   private spawnBacteria(): void{
@@ -302,6 +305,35 @@ export class SceneComponent implements AfterViewInit {
 
     //Add it to the entity array
     this.entities.push(B);
+  }
+
+  private createExplosion(particles: number, sphere: Sphere): void {
+    for (let i = 0; i < particles; i++) {
+      const direction = normV3(new Vector3(Math.random(), Math.random(), Math.random()));
+      const location = new Vector3(sphere.location.x, sphere.location.y, sphere.location.z);
+      const radius = sphere.radius/2;
+      const speed = sphere.radius;
+      const rotation = sphere.rotation;
+      const color = new Color(
+        sphere.color.r * (0.7 + Math.random() * 0.3),
+        sphere.color.g * (0.7 + Math.random() * 0.3),
+        sphere.color.b * (0.7 + Math.random() * 0.3),
+        1
+      )
+
+      const E = new ExplosionParticle(
+        15,
+        radius,
+        location,
+        color,
+        direction,
+        speed,
+        rotation,
+      );
+
+      this.entities.push(E);
+    }
+
   }
 
   updateGameSettings(settings: GameSettings): void {

@@ -1,31 +1,33 @@
-import {Circle} from "./circle";
+import {Sphere} from "./sphere";
 import {Vector2} from "./vector2";
+import {Vector3} from "./vector3";
 import {Color} from "./color";
 import {Entity, EntityType} from "./entity";
 
-export class ExplosionParticle extends Circle implements Entity {
+export class ExplosionParticle extends Sphere implements Entity {
 
   alive: boolean;
   type: EntityType;
-  direction: Vector2;
+  direction: Vector3;
   speed: number;
-  origPos: Vector2;
+  origPos: Vector3;
 
-  constructor(resolution: number, radius: number, location: Vector2, color: Color, direction: Vector2, speed: number) {
-    super(resolution, radius, location, color);
+  constructor(resolution: number, radius: number, location: Vector3, color: Color, direction: Vector3, speed: number,  rotation: Vector2) {
+    super(resolution, radius, location, color, rotation);
     this.direction = direction;
     this.speed = speed;
-    this.origPos = new Vector2(location.x, location.y);
+    this.origPos = new Vector3(location.x, location.y, location.z);
 
     this.alive = true;
     this.type = EntityType.ExplosionParticle;
   }
 
   public update(): void{
-    this.location.x -= this.direction.x * (this.speed * (0.25 + Math.random()*0.75));
-    this.location.y -= this.direction.y * (this.speed * (0.25 + Math.random()*0.75));
+    this.location.x -= this.direction.x * (this.speed * (0.04 + Math.random()*0.1));
+    this.location.y -= this.direction.y * (this.speed * (0.04 + Math.random()*0.1));
+    this.location.z += this.direction.z * (this.speed * (0.04 + Math.random()*0.1));
     if(this.radius > 0)
-      this.radius-=0.5 + Math.random();
+      this.radius-=0.001 ;//+ Math.random();
     else this.die();
 
   }
