@@ -5,7 +5,7 @@ import {SphereDrawerService} from "../services/SphereDrawer/sphere-drawer.servic
 import {getCursorPosition} from "../../functions/inputFunc";
 import {Sphere} from "../../models/sphere";
 import {Vector3} from "../../models/vector3";
-import {getCircumferencePoint, normV3} from "../../functions/sphereFunc";
+import {getCircumferencePoint, normV3,getDistanceBetweenTwoSpheres,smallerMoveIntoBigger,isPointInSphere} from "../../functions/sphereFunc";
 import {Bacteria3D} from "../../models/bacteria3d";
 import {GameSettings} from "../../models/gameSettings";
 import {Entity, EntityType} from "../../models/entity";
@@ -333,6 +333,13 @@ export class SceneComponent implements AfterViewInit {
 
       this.entities.push(E);
     }
+
+  }
+
+  private bacteriaCollision(s1:Sphere, s2:Sphere): void{
+    const distance = getDistanceBetweenTwoSpheres(s1,s2);
+    smallerMoveIntoBigger(s1, s2, distance);
+    
 
   }
 
