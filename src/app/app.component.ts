@@ -8,7 +8,7 @@ import {DomSanitizer} from "@angular/platform-browser";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'COSC 414 - Project 1';
+  title = 'COSC 414 - Project 2';
 
   constructor(
     private matIconRegistry: MatIconRegistry,

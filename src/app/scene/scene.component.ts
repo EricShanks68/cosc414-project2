@@ -270,7 +270,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private colorMatch(pixels: Uint8Array, c: Color): boolean {
-    return Math.abs(pixels[0] - Math.round(c.r*255) + pixels[1] - Math.round(c.g*255) + pixels[2] - Math.round(c.b*255)) < 2;
+    return Math.abs(pixels[0] - Math.round(c.r*255) + pixels[1] - Math.round(c.g*255) + pixels[2] - Math.round(c.b*255)) <= 1;
   }
 
   private spawnBacteria(): void{
