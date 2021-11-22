@@ -34,11 +34,12 @@ export function smallerMoveIntoBigger (s1: Sphere, s2: Sphere, distance: number)
     s1.location.x = s1.location.x + Math.abs(s2.location.x - s1.location.x) * distancePart;
     s1.location.y = s1.location.y + Math.abs(s2.location.y - s1.location.y) * distancePart;
     s1.location.z = s1.location.z + Math.abs(s2.location.z - s1.location.z) * distancePart;
+    s2.radius + s1.radius/5;
   } else{
     s2.location.x = s2.location.x + Math.abs(s1.location.x - s2.location.x) * distancePart;
     s2.location.y = s2.location.y + Math.abs(s1.location.y - s2.location.y) * distancePart;
     s2.location.z = s2.location.z + Math.abs(s1.location.z - s2.location.z) * distancePart;
-
+    s1.radius + s2.radius/5;
   }
  
 }
@@ -51,11 +52,11 @@ export function smallerMoveIntoBigger (s1: Sphere, s2: Sphere, distance: number)
 //   return distance < circle.radius;
 // }
 
-export function isPointInSphere(pos: Vector3, sphere: Sphere): boolean {
+export function isPointInSphere(sphere1: Sphere, sphere2: Sphere): boolean {
 
-  const distance = dist(pos, sphere.location);
+  const distance = dist(sphere1.location, sphere2.location);
 
-  return distance < sphere.radius;
+  return distance < sphere2.radius;
 }
 
 

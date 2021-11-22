@@ -336,6 +336,17 @@ export class SceneComponent implements AfterViewInit {
 
   }
 
+  private collisioncheck(): void{
+    for(let i = 0; i<=this.entities.length-1; i++){
+      const entity1 = this.entities[i];
+      for(let j = 1; j <= this.entities.length; j++){
+        const entity2 = this.entities[j];
+       // if(entity1.type == EntityType.Bacteria && entity2.type == EntityType.Bacteria && isPointInSphere(entity1, entity2))
+       //can access bacteria, or will have to make bacteria[] returned from spawn bacteria?
+      }
+    }
+  }
+
   private bacteriaCollision(s1:Sphere, s2:Sphere): void{
     const distance = getDistanceBetweenTwoSpheres(s1,s2);
     smallerMoveIntoBigger(s1, s2, distance);
