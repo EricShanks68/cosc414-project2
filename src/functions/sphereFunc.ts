@@ -1,5 +1,6 @@
 import {Vector3} from "../models/vector3";
 import {Sphere} from "../models/sphere";
+import {Color} from "../models/color";
 
 export function getCircumferencePoint (s: Sphere): Vector3{
   // x = r * cos(s) * sin(t)
@@ -15,51 +16,52 @@ export function getCircumferencePoint (s: Sphere): Vector3{
 }
 
 export function getDistanceBetweenTwoSpheres (s1: Sphere, s2: Sphere): number{
-  //d = ((x2 - x1)2 + (y2 - y1)2 + (z2 - z1)2)1/2   
-  const x1 = s1.location.x;
-  const x2 = s2.location.x;
-  const y1 = s1.location.y;
-  const y2 = s2.location.y;   
-  const z1 = s1.location.z;
-  const z2 = s2.location.z;
- const distance = (Math.sqrt(x2 -x1) + Math.sqrt(y2-y1) + Math.sqrt(z2-z1));
-  return distance;
+  return dist(s1.location, s2.location);
 }
 
 
 export function smallerMoveIntoBigger (s1: Sphere, s2: Sphere, distance: number): void{
-  const testNum = 20;
+  const testNum = 100;
   const distancePart = distance / testNum;
   if(s1.radius < s2.radius){
     //A_moved = A + |(B-A)|*d
-    s1.location.x = s1.location.x + Math.abs(s2.location.x - s1.location.x) * distancePart;
-    s1.location.y = s1.location.y + Math.abs(s2.location.y - s1.location.y) * distancePart;
-    s1.location.z = s1.location.z + Math.abs(s2.location.z - s1.location.z) * distancePart;
-    s2.radius + s1.radius/testNum;
-    s1.radius - s1.radius/testNum;
+    s1.location = vector3Lerp(s1.location, s2.location, distancePart);
+    s1.radius -= 0.005;
+    s2.radius += 0.0005;
+    s2.color = colorLerp(s2.color, s1.color, 0.01);
   } else{
-    s2.location.x = s2.location.x + Math.abs(s1.location.x - s2.location.x) * distancePart;
-    s2.location.y = s2.location.y + Math.abs(s1.location.y - s2.location.y) * distancePart;
-    s2.location.z = s2.location.z + Math.abs(s1.location.z - s2.location.z) * distancePart;
-    s1.radius + s2.radius/testNum;
-    s2.radius - s2.radius/testNum;
+    s2.location = vector3Lerp(s2.location, s1.location, distancePart);
+    s1.radius += 0.0005;
+    s2.radius -= 0.005;
+    s1.color = colorLerp(s1.color, s2.color, 0.01);
   }
- 
+
 }
 
+function colorLerp(c1: Color, c2: Color, a: number): Color {
+  const r = lerp(c1.r, c2.r, a);
+  const g = lerp(c1.g, c2.g, a);
+  const b = lerp(c1.b, c2.b, a);
+  return new Color(r, g, b, 1);
+}
 
-// export function isPointInCircle(pos: Vector2, circle: Circle): boolean {
-//
-//   const distance = dist(pos, circle.location);
-//
-//   return distance < circle.radius;
-// }
+function vector3Lerp(v1: Vector3, v2: Vector3, a: number): Vector3{
+  const x = lerp(v1.x, v2.x, a);
+  const y = lerp(v1.y, v2.y, a);
+  const z = lerp(v1.z, v2.z, a);
+  return new Vector3(x,y,z);
+}
+
+function lerp(n1: number, n2: number, a: number): number {
+  return n1 * (1 - a) + n2 * a;
+}
+
 
 export function isPointInSphere(sphere1: Sphere, sphere2: Sphere): boolean {
 
   const distance = dist(sphere1.location, sphere2.location);
 
-  return distance < sphere2.radius;
+  return distance < sphere1.radius + sphere2.radius;
 }
 
 
