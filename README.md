@@ -4,7 +4,7 @@ Created by Nicholas Brown, Amelia Colquhoun, and Eric Shanks.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.0.
 
-The project is available on [GitHub Pages](https://nicholas-c-brown.github.io/cosc414-project1/scene)
+The project is available on [GitHub Pages](https://ericshanks68.github.io/cosc414-project2/scene)
 
 It was deployed to GitPages using the [angular-cli-ghpages](https://www.npmjs.com/package/angular-cli-ghpages) package.
 

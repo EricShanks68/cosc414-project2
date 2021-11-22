@@ -7,7 +7,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "cosc414-project1": {
+    "cosc414-project2": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,7 +24,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "dist/cosc414-project1",
+            "outputPath": "dist/cosc414-project2",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -80,10 +80,10 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "cosc414-project1:build:production"
+              "browserTarget": "cosc414-project2:build:production"
             },
             "development": {
-              "browserTarget": "cosc414-project1:build:development"
+              "browserTarget": "cosc414-project2:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -91,7 +91,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "cosc414-project1:build"
+            "browserTarget": "cosc414-project2:build"
           }
         },
         "test": {
