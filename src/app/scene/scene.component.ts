@@ -309,11 +309,11 @@ export class SceneComponent implements AfterViewInit {
 
   private createExplosion(particles: number, sphere: Sphere): void {
     for (let i = 0; i < particles; i++) {
-      const direction = normV3(new Vector3(Math.random(), Math.random(), Math.random()));
+      const direction = normV3(new Vector3(-0.5 + Math.random(), -0.5 + Math.random(), -0.5 + Math.random()));
       const location = new Vector3(sphere.location.x, sphere.location.y, sphere.location.z);
       const radius = sphere.radius/2;
       const speed = sphere.radius;
-      const rotation = sphere.rotation;
+      const rotation = Vector2.ZERO;
       const color = new Color(
         sphere.color.r * (0.7 + Math.random() * 0.3),
         sphere.color.g * (0.7 + Math.random() * 0.3),
@@ -350,7 +350,7 @@ export class SceneComponent implements AfterViewInit {
   private bacteriaCollision(s1:Sphere, s2:Sphere): void{
     const distance = getDistanceBetweenTwoSpheres(s1,s2);
     smallerMoveIntoBigger(s1, s2, distance);
-    
+
 
   }
 
