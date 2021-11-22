@@ -35,6 +35,10 @@ export class SceneComponent implements AfterViewInit {
 
   sphere = new Sphere(15, 1.5,new Vector3(0,0, 0), Color.White, Vector2.ZERO);
 
+  sphere1 = new Sphere(15, 1,new Vector3(1,1, 0), Color.Red, Vector2.ZERO);
+
+  sphere2 = new Sphere(15, 0.8,new Vector3(1.5,1, 0), Color.Blue, Vector2.ZERO);
+
   drag = false;
   mouseStart = new Vector2(0,0);
 
@@ -152,6 +156,7 @@ export class SceneComponent implements AfterViewInit {
 
     //Check win condition
     this.winCheck();
+
   }
 
   private render(): void {
@@ -160,6 +165,8 @@ export class SceneComponent implements AfterViewInit {
 
     //Draw Petri Dish
     this.sphereDrawer.drawSphere(this.sphere);
+    this.sphereDrawer.drawSphere(this.sphere1);
+    this.sphereDrawer.drawSphere(this.sphere2);
 
     //Draw Entities
     for(const e of this.entities){
@@ -258,9 +265,7 @@ export class SceneComponent implements AfterViewInit {
       if (entity.type == EntityType.Bacteria) {
         const b = <Bacteria3D>entity;
         if(this.colorMatch(pixelValues, b.color)) {
-          console.log("do get before explosion");
           this.createExplosion(this.gameSettings.explosionSize, b);
-          console.log("explode???");
           b.die();
           return;
         }
@@ -288,6 +293,12 @@ export class SceneComponent implements AfterViewInit {
     for(const e of this.entities){
       if(e.type == EntityType.Bacteria)
         bacteria.push(<Bacteria3D>e);
+    }
+
+    //check if bacteria are overlapping and do thing
+    if(bacteria.length > 1){
+      console.log("Initial call in spawn");
+    this.collisioncheck1(this.sphere1, this.sphere2);
     }
 
     if(bacteria.length >= this.gameSettings.spawnCap) return;
@@ -336,22 +347,45 @@ export class SceneComponent implements AfterViewInit {
 
   }
 
-  private collisioncheck(): void{
-    for(let i = 0; i<=this.entities.length-1; i++){
-      const entity1 = this.entities[i];
-      for(let j = 1; j <= this.entities.length; j++){
-        const entity2 = this.entities[j];
-       // if(entity1.type == EntityType.Bacteria && entity2.type == EntityType.Bacteria && isPointInSphere(entity1, entity2))
+  private collisioncheck1(s1: Sphere, s2: Sphere): void{
+    console.log("collision check first");
+        if(s1 != undefined || s2 != undefined ){
+          console.log(" before is sphere call");
+       // if(isPointInSphere(entity1, entity2) || isPointInSphere(entity2, entity1)){
+          console.log("after sphere call");
+          this.bacteriaCollision(s1, s2);
+       // }
+      }
        //can access bacteria, or will have to make bacteria[] returned from spawn bacteria?
       }
-    }
-  }
 
-  private bacteriaCollision(s1:Sphere, s2:Sphere): void{
+  // private collisioncheck(bacteria:Bacteria3D[]): void{
+  //   console.log("collision check first");
+  //   for(let i = 0; i<= bacteria.length-1; i++){
+  //     const entity1 = bacteria[i];
+  //     for(let j = 1; j <= bacteria.length; j++){
+  //       const entity2 = bacteria[j];
+  //       console.log("after loop");
+  //       if(entity1 != undefined || entity1 != undefined ){
+  //         console.log(" before is sphere call");
+  //      // if(isPointInSphere(entity1, entity2) || isPointInSphere(entity2, entity1)){
+  //         console.log("after sphere call");
+  //         this.bacteriaCollision(entity1, entity2);
+  //      // }
+  //     }
+  //      //can access bacteria, or will have to make bacteria[] returned from spawn bacteria?
+  //     }
+  //   }
+  // }
+
+  public bacteriaCollision(s1:Sphere, s2:Sphere): void{
+    console.log("collision function");
+    if(s1 != undefined || s2 != undefined ){
     const distance = getDistanceBetweenTwoSpheres(s1,s2);
+    console.log("get distance?");
     smallerMoveIntoBigger(s1, s2, distance);
-
-
+    console.log("smaller in bigger?");
+    }
   }
 
   updateGameSettings(settings: GameSettings): void {
