@@ -13,7 +13,7 @@ export abstract class WebGLService {
 
   private _renderingContext: CanvasRenderingContext2D | ImageBitmapRenderingContext | WebGLRenderingContext | WebGL2RenderingContext | null | undefined;
 
-  protected get gl(): WebGLRenderingContext {
+  get gl(): WebGLRenderingContext {
     return this._renderingContext as WebGLRenderingContext;
   }
 
@@ -41,7 +41,7 @@ export abstract class WebGLService {
    * @param clearColor the color the canvas is reset to when cleared
    */
   public initializeRenderingContext(canvas: HTMLCanvasElement, canvasSize: Vector2, clearColor: Color): boolean {
-    this._renderingContext = canvas.getContext('webgl');
+    this._renderingContext = canvas.getContext('webgl', {preserveDrawingBuffer: true});
     if(!this.gl) {
       console.log("Unable to initialize WebGL. Your browser may not support it.");
       return false;
@@ -52,7 +52,12 @@ export abstract class WebGLService {
 
     this.setCanvasSize(this.canvasSize.x, this.canvasSize.y);
     this.setCanvasClearColor(this.canvasClearColor);
+
     this.clearCanvas();
+
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.gl.depthFunc(this.gl.LEQUAL);
+    this.gl.depthRange(-100, 100);
 
     return true;
   }

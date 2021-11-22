@@ -6,4 +6,7 @@ export class Vector2 {
     this.x = x;
     this.y = y;
   }
+
+  static ZERO = new Vector2(0,0);
+
 }
